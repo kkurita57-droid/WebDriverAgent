@@ -10,22 +10,23 @@ jobs:
 
       - name: Build IPA
         run: |
-          xcodebuild build \
+          xcodebuild build-for-testing \
             -project WebDriverAgent.xcodeproj \
             -scheme WebDriverAgentRunner \
-            -sdk iphoneos \
-            -configuration Debug \
+            -destination "generic/platform=iOS" \
             -derivedDataPath DerivedData \
-            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=YES \
-            ONLY_ACTIVE_ARCH=NO
+            CODE_SIGNING_ALLOWED=NO
 
-          APP=$(find DerivedData/Build/Products -name "*.app" | grep -v ".xctest" | head -1)
-          echo "使用するアプリ: $APP"
+          APP=$(find DerivedData/Build/Products -name "*.app" ! -name "*.xctest" | head -1)
+          echo "アプリ: $APP"
+          ls -lh "$APP"
+
           mkdir -p Payload
           cp -r "$APP" Payload/
           zip -r WDA.ipa Payload/
+          ls -lh WDA.ipa
 
       - uses: actions/upload-artifact@v4
         with:
